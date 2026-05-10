@@ -1,0 +1,4 @@
+/.env
+/cmake-build-debug
+/build
+/.idea

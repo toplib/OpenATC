@@ -101,7 +101,7 @@ namespace Net {
 
         if (res != CURLE_OK) {
             std::string error = curl_easy_strerror(res);
-            throw std::runtime_error("Failed to perform get request: " + error);
+            throw std::runtime_error("Failed to perform post request: " + error);
         }
 
         long statusCode = 0;

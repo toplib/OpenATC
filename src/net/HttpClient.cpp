@@ -16,9 +16,7 @@ namespace Net {
             throw std::runtime_error("Failed to initialize CURL");
         }
 
-        curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, 1L);
-        curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "SimpleATC/0.1");
+        applyDefaultOptions();
     }
 
     HttpClient::~HttpClient() {

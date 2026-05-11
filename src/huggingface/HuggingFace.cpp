@@ -27,6 +27,6 @@ namespace HF {
                 "Authorization: Bearer " + m_token
             }
             );
+    	return false;
     }
-    return false;
 }

@@ -15,7 +15,7 @@ namespace STT {
         bool no_context = true;
     };
 
-    class WhisperBackend : ISTTBackend {
+    class WhisperBackend : public ISTTBackend {
     public:
         WhisperBackend(WhisperConfig config);
         ~WhisperBackend() override;
@@ -28,7 +28,7 @@ namespace STT {
         WhisperConfig m_config;
         std::thread m_thread;
 
-        whisper_context* m_ctx;
+        whisper_context* m_ctx = nullptr;
         whisper_full_params m_params;
 
         std::condition_variable m_cv;

@@ -24,6 +24,9 @@ namespace STT {
     }
 
     WhisperBackend::~WhisperBackend() {
+        if (m_thread.joinable()) {
+            m_thread.join();
+        }
         whisper_free(m_ctx);
     }
 

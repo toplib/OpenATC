@@ -31,6 +31,7 @@ int main() {
         false,
         true
     };
+
     std::vector<std::int16_t> vwav = loadWav("/home/toplib/CLionProjects/SimpleATC/output1.wav");
     std::span<const std::int16_t> wav(vwav);
     STT::WhisperBackend backend(config);

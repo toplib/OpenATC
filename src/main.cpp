@@ -37,6 +37,9 @@ int main() {
     STT::WhisperBackend backend(config);
     std::cout << "Start transcribing" << std::endl;
     auto text = backend.transcribe(wav);
+    while (text.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
+        std::cout << "Transcribing" << std::endl;
+    }
     std::cout << text.get() << std::endl;
     return 0;
 }

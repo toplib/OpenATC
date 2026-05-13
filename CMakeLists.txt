@@ -42,8 +42,6 @@ add_executable(SimpleATC
         src/utils/WavLoader.h
         src/core/llm-backend/ILLMBackend.h
         src/core/llm-backend/Message.h
-        src/core/llm-backend/llamacpp/LlamacppBackend.h
-        src/core/llm-backend/llamacpp/LlamacppBackend.cpp
 )
 
 target_include_directories(SimpleATC PRIVATE

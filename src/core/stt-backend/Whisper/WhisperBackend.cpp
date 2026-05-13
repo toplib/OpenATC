@@ -31,28 +31,41 @@ namespace STT {
     }
 
     std::future<std::string> WhisperBackend::transcribe(std::span<const std::int16_t> &speech) {
-        size_t samples = speech.size();
 
-        std::vector<float> pcm_f32(samples);
-        for (size_t i = 0; i < samples; i++) {
-            pcm_f32[i] = speech[i] / 32768.0f;
+        if (m_thread.joinable()) {
+            m_thread.join();
         }
 
-        if (whisper_full(m_ctx, m_params, pcm_f32.data(), pcm_f32.size()) != 0) {
-            whisper_free(m_ctx);
-            throw std::runtime_error("Failed to process audio");
-        }
+        auto promise = std::make_shared<std::promise<std::string>>();
+        std::future<std::string> future = promise->get_future();
 
-        std::string buffer = "";
-        int n_segments = whisper_full_n_segments(m_ctx);
-        for (int i = 0; i < n_segments; i++) {
-            const char* text = whisper_full_get_segment_text(m_ctx, i);
-            buffer += text;
-        }
+        m_thread = std::thread([this, promise, speech]() {
+            try {
+                size_t samples = speech.size();
 
-        std::promise<std::string> p;
-        p.set_value(buffer); // TODO: Implement transcribing in new thread
-        return p.get_future();
+                std::vector<float> pcm_f32(samples);
+                for (size_t i = 0; i < samples; i++) {
+                    pcm_f32[i] = speech[i] / 32768.0f;
+                }
+
+                if (whisper_full(m_ctx, m_params, pcm_f32.data(), pcm_f32.size()) != 0) {
+                    whisper_free(m_ctx);
+                    throw std::runtime_error("Failed to process audio");
+                }
+
+                std::string buffer = "";
+                int n_segments = whisper_full_n_segments(m_ctx);
+                for (int i = 0; i < n_segments; i++) {
+                    const char* text = whisper_full_get_segment_text(m_ctx, i);
+                    buffer += text;
+                }
+                promise->set_value(buffer);
+            } catch (...) {
+                promise->set_exception(std::current_exception());
+            }
+        });
+
+        return future;
     }
 
     void WhisperBackend::pushAudio(std::span<const std::int16_t> chunk) {

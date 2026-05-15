@@ -24,20 +24,20 @@ namespace STT {
     }
 
     WhisperBackend::~WhisperBackend() {
+        m_cv.notify_all();
         if (m_thread.joinable()) {
             m_thread.join();
         }
         whisper_free(m_ctx);
     }
 
-    std::future<std::string> WhisperBackend::transcribe(std::span<const std::int16_t> &speech) {
-
+    std::future<std::string> WhisperBackend::transcribe(std::span<const std::int16_t>& speech, Parameters parameters) {
         if (m_thread.joinable()) {
             m_thread.join();
         }
-
         auto promise = std::make_shared<std::promise<std::string>>();
         std::future<std::string> future = promise->get_future();
+        m_params.initial_prompt = parameters.prompt.c_str();
 
         m_thread = std::thread([this, promise, speech]() {
             try {
@@ -68,12 +68,18 @@ namespace STT {
         return future;
     }
 
+    void worker() {
+
+    }
+
     void WhisperBackend::pushAudio(std::span<const std::int16_t> chunk) {
         // TODO: Implement streaming in future
     }
 
     std::future<std::string> WhisperBackend::finalize() {
-
+        std::promise<std::string> p;
+        p.set_value("");
+        return p.get_future();
     }
 
     void WhisperBackend::reset() {

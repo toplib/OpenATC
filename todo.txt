@@ -1,3 +1,4 @@
 Make this app portable to Windows/MacOS
 Implement DownloadManager
 Implement HuggingFace Client
+Fix WhisperBackend thread locking

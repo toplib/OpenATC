@@ -1,45 +1,23 @@
 #include <iostream>
-// #include "net/HttpClient.h"
-// #include <json.hpp>
-// const std::string HF_DOWNLOADS_PATH = "./HF_DOWNLOADS/";
-#include "core/stt-backend/Whisper/WhisperBackend.h"
-#include "utils/WavLoader.h"
 
-//using json = nlohmann::json;
+#include "llm-backend/llamacpp/LlamacppBackend.h"
 
 int main() {
-    // Net::HttpClient client;
-    //
-    // //Net::Response response = client.post("https://httpbin.org/post", R"({"hello": "world"})", {"Content-Type: application/json"});
-    // Net::Response response = client.get("https://httpbin.org/get");
-    // response = client.get(
-    //         "https://huggingface.co/api/whoami-v2",
-    //         {
-    //             "Authorization: Bearer "
-    //         }
-    //         );
-    // json data = json::parse(response.body);
-    // if (data.contains("error")) {
-    //     std::cerr << data["error"] << std::endl;
-    // }
-    // std::cout << "Code: " << response.status << std::endl;
-    // std::cout << response.body << std::endl;
-
-    STT::WhisperConfig config = {
-        "/home/toplib/CLionProjects/SimpleATC/models/ggml-large-v3.bin",
-        "en",
-        false,
-        true
+    LLM::LlamacppConfig config = {
+        "/home/toplib/CLionProjects/SimpleATC/models/llama-3.2-1b-instruct-q8_0.gguf",
+        4096,
+        512,
+        8,
+        true,
+        200
     };
-
-    std::vector<std::int16_t> vwav = loadWav("/home/toplib/CLionProjects/SimpleATC/output1.wav");
-    std::span<const std::int16_t> wav(vwav);
-    STT::WhisperBackend backend(config);
-    std::cout << "Start transcribing" << std::endl;
-    auto text = backend.transcribe(wav);
-    while (text.wait_for(std::chrono::seconds(0)) != std::future_status::ready) {
-        std::cout << "Transcribing" << std::endl;
-    }
-    std::cout << text.get() << std::endl;
+    LLM::LlamacppBackend backend(config);
+    std::vector<LLM::Message> history = backend.getHistory();
+    history.push_back({"system", "You're pilot of the Airliner called Boeing 737-800, you will communicate with ATC, your callsign is BRU7581, BRU - Belavia, ANSWER EXACTLY WHAT YOU WILL SAY TO ATC, WITH ICAO STANDARDS"});
+    backend.setHistory(history);
+    std::future<LLM::Message> future = backend.getResponse({"user", "BRU7581, cleared for takeoff, runway 27R, wind 085 at 15 knots, after departure contact departure 135.200"});
+    // std::future<LLM::Message> future = backend.getResponse({"user", "Write hello world in c++"});
+    std::cout << "WARNING: STARTING GENERATION" << std::endl;
+    std::cout << future.get().content << std::endl;
     return 0;
 }

@@ -25,7 +25,6 @@ namespace LLM {
     private:
         LlamacppConfig m_config;
         std::vector<Message> m_history;
-        std::thread m_thread; // TODO: implement this backend initialization in new thread
 
         llama_model* m_model = nullptr;
         llama_context* m_ctx = nullptr;

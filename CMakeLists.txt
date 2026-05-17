@@ -25,8 +25,9 @@ endif()
 
 find_package(CURL REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(spdlog REQUIRED)
 
-add_executable(SimpleATC
+qt_add_executable(SimpleATC
         src/main.cpp
         src/clients/huggingface/HuggingFace.h
         src/clients/huggingface/HuggingFace.cpp
@@ -36,14 +37,31 @@ add_executable(SimpleATC
         src/core/net/DownloadManager.h
         src/core/net/DownloadManager.cpp
         include/json.hpp
-        src/core/stt-backend/ISTTBackend.h
-        src/core/stt-backend/Whisper/WhisperBackend.h
-        src/core/stt-backend/Whisper/WhisperBackend.cpp
+        src/core/stt/ISTTBackend.h
+        src/core/stt/Whisper/WhisperBackend.h
+        src/core/stt/Whisper/WhisperBackend.cpp
         src/utils/WavLoader.h
-        src/core/llm-backend/ILLMBackend.h
-        src/core/llm-backend/Message.h
+        src/core/llm/ILLMBackend.h
+        src/core/llm/Message.h
+        src/core/llm/llamacpp/LlamacppBackend.h
+        src/core/llm/llamacpp/LlamacppBackend.cpp
+        src/gui/main/MainWindow.h
+        src/gui/main/MainWindow.ui
+        src/gui/main/MainWindow.cpp
+        src/config/Config.h
+        src/config/Config.cpp
+        src/gui/Manager.h
+        src/gui/Manager.cpp
+        src/Constants.h
+        src/gui/settings/Settings.h
+        src/gui/settings/Settings.ui
+        src/gui/settings/Settings.cpp
 )
-
+set_target_properties(SimpleATC PROPERTIES
+        AUTOMOC ON
+        AUTOUIC ON
+        AUTORCC ON
+)
 target_include_directories(SimpleATC PRIVATE
         ${CMAKE_SOURCE_DIR}/src
         ${CMAKE_SOURCE_DIR}/src/core
@@ -52,10 +70,12 @@ target_include_directories(SimpleATC PRIVATE
         ${CMAKE_SOURCE_DIR}/external/whisper.cpp/include
 )
 
+
 target_link_libraries(SimpleATC PRIVATE
         CURL::libcurl
         llama
         whisper
+        spdlog::spdlog
         Qt6::Core
         Qt6::Gui
         Qt6::Widgets

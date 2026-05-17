@@ -1,7 +1,8 @@
 #pragma once
 #include <filesystem>
+#include <unordered_set>
 
-#include "llm-backend/ILLMBackend.h"
+#include "llm/ILLMBackend.h"
 #include "llama.h"
 
 namespace LLM {
@@ -25,10 +26,14 @@ namespace LLM {
     private:
         LlamacppConfig m_config;
         std::vector<Message> m_history;
+        std::thread m_thread;
 
         llama_model* m_model = nullptr;
         llama_context* m_ctx = nullptr;
         llama_sampler* m_sampler = nullptr;
+        int m_cur_pos = 0;
+        std::string m_prev_prompt;
+        std::unordered_set<llama_token> m_eog_tokens;
 
         [[nodiscard]] std::string buildPrompt() const;
 

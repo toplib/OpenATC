@@ -2,3 +2,17 @@ Make this app portable to Windows/MacOS
 Implement DownloadManager
 Implement HuggingFace Client
 Fix WhisperBackend thread locking
+
+Implement microphone capture
+Implement Push-to-Talk button
+Implement TTS
+
+Implement radar display
+Implement aircraft simulation
+Implement flight plan management
+
+Implement Config persistence
+Wire up Settings dialog to real logic
+
+Complete DownloadManager enqueue()
+Complete HuggingFace client (list repos, download chunks)

@@ -48,14 +48,18 @@ qt_add_executable(SimpleATC
         src/gui/main/MainWindow.h
         src/gui/main/MainWindow.ui
         src/gui/main/MainWindow.cpp
-        src/config/Config.h
-        src/config/Config.cpp
+        src/core/config/Config.h
+        src/core/config/Config.cpp
         src/gui/Manager.h
         src/gui/Manager.cpp
         src/Constants.h
         src/gui/settings/Settings.h
         src/gui/settings/Settings.ui
         src/gui/settings/Settings.cpp
+        include/cpptoml.h
+        src/simulation/Engine.h
+        src/simulation/Entity.h
+        src/simulation/Coordinates.h
 )
 set_target_properties(SimpleATC PROPERTIES
         AUTOMOC ON

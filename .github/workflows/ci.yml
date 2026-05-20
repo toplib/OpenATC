@@ -30,7 +30,7 @@ jobs:
       run: |
         cmake -S . -B build \
           -G Ninja \
-          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_BUILD_TYPE=Release \
           -DGGML_VULKAN=ON
 
     - name: build

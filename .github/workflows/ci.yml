@@ -31,6 +31,7 @@ jobs:
         cmake -S . -B build \
           -G Ninja \
           -DCMAKE_BUILD_TYPE=Release
+          -DGGML_VULKAN=OFF
 
     - name: build
       run: cmake --build build --parallel

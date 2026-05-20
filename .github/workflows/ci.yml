@@ -22,16 +22,32 @@ jobs:
           cmake ninja-build \
           libcurl4-openssl-dev \
           libspdlog-dev \
-          libvulkan-dev glslang-tools glslc \
           qt6-base-dev qt6-tools-dev qt6-tools-dev-tools \
-          libgl1-mesa-dev
+          libgl1-mesa-dev \
+          libxkbcommon-dev libxkbcommon-x11-dev \
+          libxcb1-dev libxcb-cursor-dev libxcb-glx0-dev \
+          libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev \
+          libxcb-randr0-dev libxcb-render-util0-dev libxcb-shape0-dev \
+          libxcb-shm0-dev libxcb-sync-dev libxcb-util-dev \
+          libxcb-xfixes0-dev libxcb-xkb-dev \
+          libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev \
+          libxi-dev libxrender-dev
+
+    - name: install vulkan sdk
+      run: |
+        wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+        sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan.list \
+          https://packages.lunarg.com/vulkan/lunarg-vulkan-noble.list
+        sudo apt-get update -qq
+        sudo apt-get install -y vulkan-sdk
 
     - name: configure
       run: |
         cmake -S . -B build \
           -G Ninja \
           -DCMAKE_BUILD_TYPE=Release \
-          -DGGML_VULKAN=ON
+          -DGGML_VULKAN=ON \
+          -DGGML_CUDA=OFF
 
     - name: build
       run: cmake --build build --parallel

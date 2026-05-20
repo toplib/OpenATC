@@ -22,7 +22,7 @@ jobs:
           cmake ninja-build \
           libcurl4-openssl-dev \
           libspdlog-dev \
-          libvulkan-dev glslang-tools \
+          libvulkan-dev glslang-tools shaderc \
           qt6-base-dev qt6-tools-dev qt6-tools-dev-tools \
           libgl1-mesa-dev
 
@@ -31,7 +31,7 @@ jobs:
         cmake -S . -B build \
           -G Ninja \
           -DCMAKE_BUILD_TYPE=Release
-          -DGGML_VULKAN=OFF
+          -DGGML_VULKAN=ON
 
     - name: build
       run: cmake --build build --parallel

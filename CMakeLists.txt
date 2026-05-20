@@ -48,8 +48,8 @@ qt_add_executable(SimpleATC
         src/gui/main/MainWindow.h
         src/gui/main/MainWindow.ui
         src/gui/main/MainWindow.cpp
-        src/core/config/Config.h
-        src/core/config/Config.cpp
+#        src/core/config/Config.h
+#        src/core/config/Config.cpp
         src/gui/Manager.h
         src/gui/Manager.cpp
         src/Constants.h
@@ -60,6 +60,7 @@ qt_add_executable(SimpleATC
         src/simulation/Engine.h
         src/simulation/Entity.h
         src/simulation/Coordinates.h
+        src/simulation/aircraft/AirCraft.h
 )
 set_target_properties(SimpleATC PROPERTIES
         AUTOMOC ON

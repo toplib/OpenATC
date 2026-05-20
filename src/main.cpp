@@ -1,6 +1,7 @@
-#include "gui/Manager.h"
+#include <spdlog/spdlog.h>
 
 int main(int argc, char *argv[]) {
-    GUI::Manager manager(argc, argv);
-    return manager.run();
+    spdlog::info("TTS test");
+    
+    return 0;
 }

@@ -4,7 +4,7 @@
 
 namespace LLM {
 
-LlamacppBackend::LlamacppBackend(LlamacppConfig config) {
+LlamacppBackend::LlamacppBackend(const LlamacppConfig& config) {
     m_config = config;
 
     llama_backend_init();
@@ -76,7 +76,7 @@ std::future<Message> LlamacppBackend::getResponse(const Message& message) {
     auto promise = std::make_shared<std::promise<Message>>();
     std::future<Message> future = promise->get_future();
 
-    m_thread = std::thread([this, promise]() {
+    m_thread = std::jthread([this, promise]() {
         try {
             Message result = {"assistant", ""};
             const llama_vocab* vocab = llama_model_get_vocab(m_model);
@@ -86,9 +86,9 @@ std::future<Message> LlamacppBackend::getResponse(const Message& message) {
             int n_all = llama_tokenize(
                 vocab,
                 prompt.c_str(),
-                (int32_t)prompt.size(),
+                static_cast<uint32_t>(prompt.size()),
                 all_tokens.data(),
-                (int32_t)all_tokens.size(),
+                static_cast<uint32_t>(all_tokens.size()),
                 true,
                 false
             );
@@ -108,7 +108,7 @@ std::future<Message> LlamacppBackend::getResponse(const Message& message) {
             llama_sampler_reset(m_sampler);
 
             llama_batch batch = llama_batch_init(
-                (int32_t)m_config.batchSize,
+                static_cast<uint32_t>(m_config.batchSize),
                 0,
                 1
             );
@@ -116,7 +116,7 @@ std::future<Message> LlamacppBackend::getResponse(const Message& message) {
             int n_processed = 0;
             while (n_processed < n_new) {
                 int n_chunk = std::min(
-                    (int)m_config.batchSize,
+                    static_cast<int>(m_config.batchSize),
                     n_new - n_processed
                 );
 
@@ -150,7 +150,7 @@ std::future<Message> LlamacppBackend::getResponse(const Message& message) {
                     -1
                 );
 
-                if (m_eog_tokens.count(token)) {
+                if (m_eog_tokens.contains(token)) {
                     break;
                 }
 

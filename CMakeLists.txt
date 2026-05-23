@@ -12,6 +12,7 @@ set(GGML_CUDA OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(external/llama.cpp)
+add_subdirectory(external/portaudio)
 
 set(WHISPER_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(WHISPER_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -26,6 +27,7 @@ endif()
 find_package(CURL REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 find_package(spdlog REQUIRED)
+find_package(OpenAL REQUIRED)
 
 qt_add_executable(SimpleATC
         src/main.cpp
@@ -61,6 +63,8 @@ qt_add_executable(SimpleATC
         src/simulation/Entity.h
         src/simulation/Coordinates.h
         src/simulation/aircraft/AirCraft.h
+        src/core/microphone/Microphone.h
+        src/core/microphone/Microphone.cpp
 )
 set_target_properties(SimpleATC PROPERTIES
         AUTOMOC ON
@@ -80,6 +84,8 @@ target_link_libraries(SimpleATC PRIVATE
         CURL::libcurl
         llama
         whisper
+        portaudio
+        OpenAL::OpenAL
         spdlog::spdlog
         Qt6::Core
         Qt6::Gui

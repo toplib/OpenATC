@@ -1,6 +1,7 @@
 #pragma once
 #include <filesystem>
 #include <unordered_set>
+#include <thread>
 
 #include "llm/ILLMBackend.h"
 #include "llama.h"
@@ -16,7 +17,7 @@ namespace LLM {
     };
     class LlamacppBackend : public ILLMBackend {
     public:
-        LlamacppBackend(LlamacppConfig config);
+        explicit LlamacppBackend(const LlamacppConfig& config);
         ~LlamacppBackend() override;
 
         void setHistory(const std::vector<Message> &history) override;
@@ -26,7 +27,7 @@ namespace LLM {
     private:
         LlamacppConfig m_config;
         std::vector<Message> m_history;
-        std::thread m_thread;
+        std::jthread m_thread;
 
         llama_model* m_model = nullptr;
         llama_context* m_ctx = nullptr;

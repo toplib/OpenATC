@@ -14,6 +14,7 @@ namespace STT {
         std::string language = "en";
         bool translate = false;
         bool no_context = true;
+        bool single_segment = true;
     };
 
     class WhisperBackend : public ISTTBackend {

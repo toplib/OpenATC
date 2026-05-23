@@ -20,6 +20,7 @@ namespace STT {
         m_params.language = m_config.language.c_str();
         m_params.translate = m_config.translate;
         m_params.no_context = m_config.no_context;
+        m_params.single_segment = m_config.single_segment;
 
     }
 

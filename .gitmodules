@@ -7,3 +7,9 @@
 [submodule "external/portaudio"]
 	path = external/portaudio
 	url = https://github.com/PortAudio/portaudio.git
+[submodule "external/webrtcvad"]
+	path = external/webrtcvad
+	url = https://github.com/cpuimage/WebRTC_VAD
+[submodule "external/voxtral-rs"]
+	path = external/voxtral-rs
+	url = https://github.com/toplib/voxtral-mini-realtime-rs.git

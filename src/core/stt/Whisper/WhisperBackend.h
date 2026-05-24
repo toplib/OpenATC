@@ -2,6 +2,11 @@
 
 #include <filesystem>
 #include <queue>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <future>
+#include <optional>
 
 #include "whisper.h"
 #include "../ISTTBackend.h"
@@ -26,19 +31,24 @@ namespace STT {
         void pushAudio(std::span<const std::int16_t> chunk) override;
         std::future<std::string> finalize() override;
         void reset() override;
+
     private:
+        struct Job {
+            std::vector<std::int16_t> audio;
+            std::string prompt;
+            std::promise<std::string> promise;
+        };
+
         void worker();
 
         WhisperConfig m_config;
-        std::thread m_thread;
-
         whisper_context* m_ctx = nullptr;
         whisper_full_params m_params;
 
-        std::queue<std::string> m_queue;
+        std::thread m_thread;
+        std::queue<Job> m_queue;
         std::condition_variable m_cv;
         std::mutex m_mutex;
-
-        bool m_stop;
+        bool m_stop = false;
     };
 }

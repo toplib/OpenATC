@@ -1,51 +1,34 @@
 #include <spdlog/spdlog.h>
 
-#include "microphone/Microphone.h"
-#include "stt/Whisper/WhisperBackend.h"
+#include "tts/Voxtral/VoxtralBackend.h"
 
-int main(int argc, char *argv[]) {
-    spdlog::info("STT test");
+int main() {
+    spdlog::info("TTS test");
 
-    // Microphone initializing
-    Input::MicrophoneConfig microphone_config;
-    Input::Microphone microphone(microphone_config);
+    TTS::VoxtralConfig config{
+        .model = "/home/toplib/CLionProjects/SimpleATC/models/voxtral-q4.gguf",
+        .tokenizer = "/home/toplib/CLionProjects/SimpleATC/models/tekken.json",
+        .voice = "/home/toplib/CLionProjects/SimpleATC/models/neutral_female.safetensors",
+    };
 
-    // Whisper backend initializing
-    STT::WhisperConfig whisper_config = {.model = "/home/toplib/CLionProjects/SimpleATC/models/ggml-large-v3.bin"};
-    STT::WhisperBackend backend(whisper_config);
+    TTS::VoxtralBackend tts(config);
 
-    std::vector<std::int16_t> buffer;
-    buffer.reserve(16000 * 3);
+    try {
+        tts.load();
+        spdlog::info("TTS model loaded");
 
-    Input::AudioData* data = microphone.start();
-    while (true) {
-        {
-            std::lock_guard<std::mutex> lock(data->mutex);
+        auto future = tts.speak("Hello world, this is a test of the voxtral text to speech system");
+        TTS::AudioOutput output = future.get();
 
-            while (!data->samples.empty()) {
-                float sample = data->samples.front();
-                data->samples.pop();
-
-                sample = std::clamp(sample, -1.0f, 1.0f);
-
-                std::int16_t s16 =
-                    static_cast<std::int16_t>(sample * 32767.0f);
-
-                buffer.push_back(s16);
-            }
-        }
-
-        if (buffer.size() >= 16000 * 2) { // ~2 seconds
-            std::vector<std::int16_t> chunk;
-            chunk.swap(buffer);
-
-            std::span<const std::int16_t> span(chunk);
-            auto future = backend.transcribe(span);
-
-            std::string text = future.get();
-            spdlog::info("Transcription: {}", text);
-        }
+        spdlog::info("Generated {} audio samples at {} Hz ({} seconds)",
+                     output.samples.size(),
+                     output.sampleRate,
+                     static_cast<double>(output.samples.size()) / output.sampleRate);
+    } catch (const std::exception& e) {
+        spdlog::error("TTS error: {}", e.what());
+        return 1;
     }
 
+    spdlog::info("TTS test completed");
     return 0;
 }

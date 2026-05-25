@@ -22,7 +22,6 @@ public:
     explicit VoxtralBackend(VoxtralConfig config);
     ~VoxtralBackend() override;
 
-    void load() override;
     std::future<AudioOutput> speak(const std::string& text) override;
 
 private:

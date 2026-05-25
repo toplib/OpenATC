@@ -11,10 +11,9 @@ int main() {
         .voice = "/home/toplib/CLionProjects/SimpleATC/models/neutral_female.safetensors",
     };
 
-    TTS::VoxtralBackend tts(config);
 
     try {
-        tts.load();
+        TTS::VoxtralBackend tts(config);
         spdlog::info("TTS model loaded");
 
         auto future = tts.speak("Hello world, this is a test of the voxtral text to speech system");

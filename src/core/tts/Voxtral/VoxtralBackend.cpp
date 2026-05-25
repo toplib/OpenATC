@@ -6,23 +6,6 @@ namespace TTS {
 
 VoxtralBackend::VoxtralBackend(VoxtralConfig config) {
     m_config = std::move(config);
-}
-
-VoxtralBackend::~VoxtralBackend() {
-    {
-        std::lock_guard lock(m_mutex);
-        m_stop = true;
-    }
-    m_cv.notify_all();
-    if (m_thread.joinable()) {
-        m_thread.join();
-    }
-    if (m_ctx) {
-        voxtral_tts_destroy(m_ctx);
-    }
-}
-
-void VoxtralBackend::load() {
     if (m_ctx) {
         voxtral_tts_destroy(m_ctx);
         m_ctx = nullptr;
@@ -74,6 +57,22 @@ void VoxtralBackend::load() {
 
     m_thread = std::jthread(&VoxtralBackend::worker, this);
 }
+
+VoxtralBackend::~VoxtralBackend() {
+    {
+        std::lock_guard lock(m_mutex);
+        m_stop = true;
+    }
+    m_cv.notify_all();
+    if (m_thread.joinable()) {
+        m_thread.join();
+    }
+    if (m_ctx) {
+        voxtral_tts_destroy(m_ctx);
+    }
+}
+
+
 
 std::future<AudioOutput> VoxtralBackend::speak(const std::string& text) {
     Job job;

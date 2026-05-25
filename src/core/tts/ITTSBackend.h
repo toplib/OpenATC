@@ -14,8 +14,6 @@ struct AudioOutput {
 class ITTSBackend {
 public:
     virtual ~ITTSBackend() = default;
-
-    virtual void load() = 0;
     virtual std::future<AudioOutput> speak(const std::string& text) = 0;
 };
 

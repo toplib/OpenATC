@@ -18,6 +18,9 @@ namespace Pipeline {
         NoiseSuppressionType noiseSuppressionType;
 
         std::function<void(ATCEventType, std::string_view)> onEventCallback;
+
+        // TODO: remove and make proper initialzation
+
     };
 
     class ATCPipeline {
@@ -34,6 +37,8 @@ namespace Pipeline {
         void microphoneStopRecording();
 
     private:
+        void workerThread();
+
         ATCPipelineConfig m_config;
         std::jthread m_thread;
         std::mutex m_mutex;

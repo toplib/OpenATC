@@ -80,6 +80,11 @@ qt_add_executable(SimpleATC
         src/core/tts/ITTSBackend.h
         src/core/tts/Voxtral/VoxtralBackend.h
         src/core/tts/Voxtral/VoxtralBackend.cpp
+        src/core/pipeline/ATCPipeline.h
+        src/utils/MicrophoneActivationType.h
+        src/core/pipeline/ATCPipeline.cpp
+        src/utils/NoiseSuppressionType.h
+        src/core/pipeline/ATCEventType.h
 )
 set_target_properties(SimpleATC PROPERTIES
         AUTOMOC ON

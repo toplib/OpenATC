@@ -13,3 +13,6 @@
 [submodule "external/voxtral-rs"]
 	path = external/voxtral-rs
 	url = https://github.com/toplib/voxtral-mini-realtime-rs.git
+[submodule "external/rnnoise"]
+	path = external/rnnoise
+	url = https://github.com/xiph/rnnoise

@@ -3,7 +3,7 @@
 namespace Pipeline {
     ATCPipeline::ATCPipeline(const ATCPipelineConfig &config) : m_config(config),
 
-    m_llmBackend({
+    m_thread(&ATCPipeline::workerThread, this), m_llmBackend({
         .model = "/run/media/toplib/Новый том/llms/lmstudio-community/gemma-4-E2B-it-GGUF/gemma-4-E2B-it-Q4_K_M.gguf",
         .contextSize = 2048,
         .batchSize = 512,
@@ -17,11 +17,16 @@ namespace Pipeline {
         .tokenizer = "/home/toplib/CLionProjects/SimpleATC/models/tekken.json",
         .voice = "neutral_female.safetensors"
     }) {
-
     }
     ATCPipeline::~ATCPipeline() = default;
 
     void ATCPipeline::reloadConfig(const ATCPipelineConfig &config) {
         m_config = config;
+    }
+
+    void ATCPipeline::workerThread() {
+        while (true) {
+
+        }
     }
 }

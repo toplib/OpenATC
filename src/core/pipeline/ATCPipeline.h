@@ -43,9 +43,12 @@ namespace Pipeline {
         std::jthread m_thread;
         std::mutex m_mutex;
         std::condition_variable m_cv;
+        bool m_stop = false;
 
         LLM::LlamacppBackend m_llmBackend;
         STT::WhisperBackend m_sttBackend;
         TTS::VoxtralBackend m_ttsBackend;
+
+
     };
 }

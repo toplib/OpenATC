@@ -1,8 +1,9 @@
-//
-// Created by toplib on 5/27/26.
-//
+#pragma once
 
-#ifndef SIMPLEATC_AUDIODATA_H
-#define SIMPLEATC_AUDIODATA_H
+#include <mutex>
+#include <queue>
 
-#endif //SIMPLEATC_AUDIODATA_H
+struct AudioData {
+    std::mutex mutex;
+    std::queue<float> samples;
+};

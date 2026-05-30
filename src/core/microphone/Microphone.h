@@ -3,16 +3,15 @@
 #include <portaudio.h>
 #include <queue>
 
+#include "AudioData.h"
+
 namespace Input {
     struct MicrophoneConfig {
         int channels = 1;
         int sampleRate = 16000;
         int numSeconds = 4;
     };
-    struct AudioData {
-        std::mutex mutex;
-        std::queue<float> samples;
-    };
+
 
     class Microphone {
     public:

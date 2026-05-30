@@ -13,3 +13,9 @@
 [submodule "external/rnnoise"]
 	path = external/rnnoise
 	url = https://github.com/xiph/rnnoise
+[submodule "third_party/cppjieba"]
+	path = third_party/cppjieba
+	url = https://github.com/yanyiwu/cppjieba.git
+[submodule "external/sherpa-onnx"]
+	path = external/sherpa-onnx
+	url = https://github.com/k2-fsa/sherpa-onnx

@@ -11,6 +11,22 @@ set(GGML_VULKAN ON CACHE BOOL "" FORCE)
 set(GGML_CUDA OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
+set(SHERPA_ONNX_ENABLE_PYTHON OFF CACHE BOOL "" FORCE)
+set(SHERPA_ONNX_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+set(SHERPA_ONNX_ENABLE_BINARY OFF CACHE BOOL "" FORCE)
+set(SHERPA_ONNX_ENABLE_SPEAKER_DIARIZATION OFF CACHE BOOL "" FORCE)
+set(SHERPA_ONNX_ENABLE_WEBSOCKET OFF CACHE BOOL "" FORCE)
+set(SHERPA_ONNX_ENABLE_PORTAUDIO OFF CACHE BOOL "" FORCE)
+set(CMAKE_CXX_STANDARD 17)
+set(_sonnx_dir "${CMAKE_BINARY_DIR}/_deps/onnxruntime-shared")
+if(EXISTS "${_sonnx_dir}/lib/libonnxruntime.so")
+    set(ENV{SHERPA_ONNXRUNTIME_INCLUDE_DIR} "${_sonnx_dir}/include")
+    set(ENV{SHERPA_ONNXRUNTIME_LIB_DIR} "${_sonnx_dir}/lib")
+    message(STATUS "Using shared onnxruntime from ${_sonnx_dir}")
+endif()
+add_subdirectory(external/sherpa-onnx EXCLUDE_FROM_ALL)
+set(CMAKE_CXX_STANDARD 20)
+
 add_subdirectory(external/llama.cpp)
 add_subdirectory(external/portaudio)
 add_library(webrtcvad STATIC
@@ -27,7 +43,6 @@ set(WHISPER_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(WHISPER_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/whisper.cpp EXCLUDE_FROM_ALL)
 
-add_subdirectory(external/voxtral-rs)
 
 get_target_property(WHISPER_INCLUDES whisper INTERFACE_INCLUDE_DIRECTORIES)
 if(WHISPER_INCLUDES)
@@ -50,7 +65,7 @@ qt_add_executable(SimpleATC
         src/core/net/HttpClient.cpp
         src/core/net/DownloadManager.h
         src/core/net/DownloadManager.cpp
-        include/json.hpp
+        third_party/json.hpp
         src/core/stt/ISTTBackend.h
         src/core/stt/Whisper/WhisperBackend.h
         src/core/stt/Whisper/WhisperBackend.cpp
@@ -70,7 +85,7 @@ qt_add_executable(SimpleATC
         src/gui/settings/Settings.h
         src/gui/settings/Settings.ui
         src/gui/settings/Settings.cpp
-        include/cpptoml.h
+        third_party/cpptoml.h
         src/simulation/Engine.h
         src/simulation/Entity.h
         src/simulation/Coordinates.h
@@ -78,13 +93,15 @@ qt_add_executable(SimpleATC
         src/core/microphone/Microphone.h
         src/core/microphone/Microphone.cpp
         src/core/tts/ITTSBackend.h
-        src/core/tts/Voxtral/VoxtralBackend.h
-        src/core/tts/Voxtral/VoxtralBackend.cpp
         src/core/pipeline/ATCPipeline.h
         src/utils/MicrophoneActivationType.h
         src/core/pipeline/ATCPipeline.cpp
         src/utils/NoiseSuppressionType.h
         src/core/pipeline/ATCEventType.h
+        src/core/pipeline/microphone/MicrophonePipeline.h
+        src/core/microphone/AudioData.h
+        src/core/pipeline/microphone/MicrophonePipeline.cpp
+        src/core/pipeline/microphone/MicrophoneState.h
 )
 set_target_properties(SimpleATC PROPERTIES
         AUTOMOC ON
@@ -99,7 +116,7 @@ target_include_directories(SimpleATC PRIVATE
         ${CMAKE_SOURCE_DIR}/external/whisper.cpp/include
         ${CMAKE_SOURCE_DIR}/external/portaudio/include
         ${CMAKE_SOURCE_DIR}/external/webrtcvad
-        ${CMAKE_SOURCE_DIR}/external/voxtral-rs/include
+        ${CMAKE_SOURCE_DIR}/external/sherpa-onnx
 )
 
 
@@ -109,7 +126,7 @@ target_link_libraries(SimpleATC PRIVATE
         whisper
         portaudio
         webrtcvad
-        voxtral_rust
+        sherpa-onnx-cxx-api
         OpenAL::OpenAL
         spdlog::spdlog
         Qt6::Core
@@ -120,3 +137,10 @@ target_include_directories(webrtcvad PUBLIC
         ${CMAKE_SOURCE_DIR}/external/webrtcvad
         ${CMAKE_SOURCE_DIR}/external/webrtcvad/vad/include
 )
+if(EXISTS "${_sonnx_dir}/lib/libonnxruntime.so")
+    add_custom_command(TARGET SimpleATC POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${_sonnx_dir}/lib/libonnxruntime.so"
+            $<TARGET_FILE_DIR:SimpleATC>
+    )
+endif()

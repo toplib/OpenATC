@@ -1,5 +1,4 @@
 #pragma once
-#include <condition_variable>
 
 #include "utils/MicrophoneActivationType.h"
 #include <functional>
@@ -7,48 +6,35 @@
 #include <thread>
 
 #include "ATCEventType.h"
-#include "llm/llamacpp/LlamacppBackend.h"
-#include "stt/Whisper/WhisperBackend.h"
-#include "tts/Voxtral/VoxtralBackend.h"
+#include "llm/ILLMBackend.h"
+#include "stt/ISTTBackend.h"
+#include "tts/ITTSBackend.h"
 #include "utils/NoiseSuppressionType.h"
 
 namespace Pipeline {
     struct ATCPipelineConfig {
         MicrophoneActivationType microphoneActivationType;
-        NoiseSuppressionType noiseSuppressionType;
+        NoiseSuppressionType noiseSuppressionType; // TODO: Implement noise suppression
 
         std::function<void(ATCEventType, std::string_view)> onEventCallback;
 
-        // TODO: remove and make proper initialzation
-
+        std::unique_ptr<LLM::ILLMBackend> llmBackend;
+        std::unique_ptr<STT::ISTTBackend> sttBackend;
+        std::unique_ptr<TTS::ITTSBackend> ttsBackend;
     };
 
     class ATCPipeline {
     public:
-        explicit ATCPipeline(const ATCPipelineConfig& config);
+        ATCPipeline(const ATCPipelineConfig& config);
         ~ATCPipeline();
 
         void start();
         void stop();
-
-        void reloadConfig(const ATCPipelineConfig& config);
-
-        void microphoneStartRecording();
-        void microphoneStopRecording();
-
     private:
-        void workerThread();
+        void workerThread(std::stop_token token);
 
-        ATCPipelineConfig m_config;
+        const ATCPipelineConfig* m_config;
         std::jthread m_thread;
         std::mutex m_mutex;
-        std::condition_variable m_cv;
-        bool m_stop = false;
-
-        LLM::LlamacppBackend m_llmBackend;
-        STT::WhisperBackend m_sttBackend;
-        TTS::VoxtralBackend m_ttsBackend;
-
-
     };
 }

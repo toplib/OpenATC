@@ -98,10 +98,7 @@ qt_add_executable(SimpleATC
         src/core/pipeline/ATCPipeline.cpp
         src/utils/NoiseSuppressionType.h
         src/core/pipeline/ATCEventType.h
-        src/core/pipeline/microphone/MicrophonePipeline.h
         src/core/microphone/AudioData.h
-        src/core/pipeline/microphone/MicrophonePipeline.cpp
-        src/core/pipeline/microphone/MicrophoneState.h
 )
 set_target_properties(SimpleATC PROPERTIES
         AUTOMOC ON

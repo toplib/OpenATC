@@ -12,29 +12,31 @@
 #include "utils/NoiseSuppressionType.h"
 
 namespace Pipeline {
-    struct ATCPipelineConfig {
-        MicrophoneActivationType microphoneActivationType;
-        NoiseSuppressionType noiseSuppressionType; // TODO: Implement noise suppression
+struct ATCPipelineConfig {
+  MicrophoneActivationType microphoneActivationType;
+  NoiseSuppressionType
+      noiseSuppressionType; // TODO: Implement noise suppression
 
-        std::function<void(ATCEventType, std::string_view)> onEventCallback;
+  std::function<void(ATCEventType, std::string_view)> onEventCallback;
 
-        std::unique_ptr<LLM::ILLMBackend> llmBackend;
-        std::unique_ptr<STT::ISTTBackend> sttBackend;
-        std::unique_ptr<TTS::ITTSBackend> ttsBackend;
-    };
+  std::unique_ptr<LLM::ILLMBackend> llmBackend;
+  std::unique_ptr<STT::ISTTBackend> sttBackend;
+  std::unique_ptr<TTS::ITTSBackend> ttsBackend;
+};
 
-    class ATCPipeline {
-    public:
-        ATCPipeline(const ATCPipelineConfig& config);
-        ~ATCPipeline();
+class ATCPipeline {
+public:
+  ATCPipeline(const ATCPipelineConfig &config);
+  ~ATCPipeline();
 
-        void start();
-        void stop();
-    private:
-        void workerThread(std::stop_token token);
+  void start();
+  void stop();
 
-        const ATCPipelineConfig* m_config;
-        std::jthread m_thread;
-        std::mutex m_mutex;
-    };
-}
+private:
+  void workerThread(std::stop_token token);
+
+  const ATCPipelineConfig *m_config;
+  std::jthread m_thread;
+  std::mutex m_mutex;
+};
+} // namespace Pipeline

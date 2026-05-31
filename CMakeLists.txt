@@ -2,11 +2,18 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 project(SimpleATC LANGUAGES C CXX)
 
+# ---------------------------------------------------------------------------
+# Global C++ standard
+# ---------------------------------------------------------------------------
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# ---------------------------------------------------------------------------
+# Third-party global options
+# ---------------------------------------------------------------------------
 set(GGML_VULKAN ON CACHE BOOL "" FORCE)
 set(GGML_CUDA OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -17,18 +24,37 @@ set(SHERPA_ONNX_ENABLE_BINARY OFF CACHE BOOL "" FORCE)
 set(SHERPA_ONNX_ENABLE_SPEAKER_DIARIZATION OFF CACHE BOOL "" FORCE)
 set(SHERPA_ONNX_ENABLE_WEBSOCKET OFF CACHE BOOL "" FORCE)
 set(SHERPA_ONNX_ENABLE_PORTAUDIO OFF CACHE BOOL "" FORCE)
-set(CMAKE_CXX_STANDARD 17)
+
+# ---------------------------------------------------------------------------
+# sherpa-onnx (needs C++17 internally — temporarily downgrade, then restore)
+# ---------------------------------------------------------------------------
 set(_sonnx_dir "${CMAKE_BINARY_DIR}/_deps/onnxruntime-shared")
 if(EXISTS "${_sonnx_dir}/lib/libonnxruntime.so")
     set(ENV{SHERPA_ONNXRUNTIME_INCLUDE_DIR} "${_sonnx_dir}/include")
     set(ENV{SHERPA_ONNXRUNTIME_LIB_DIR} "${_sonnx_dir}/lib")
     message(STATUS "Using shared onnxruntime from ${_sonnx_dir}")
 endif()
+
+set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(external/sherpa-onnx EXCLUDE_FROM_ALL)
 set(CMAKE_CXX_STANDARD 20)
 
+# Prevent sherpa-onnx targets from downgrading consumers (SimpleATC) to C++17
+# via INTERFACE_COMPILE_FEATURES propagation.
+foreach(_t sherpa-onnx-cxx-api sherpa-onnx-c-api sherpa-onnx-core sherpa-onnx)
+    if(TARGET ${_t})
+        set_target_properties(${_t} PROPERTIES
+            INTERFACE_COMPILE_FEATURES ""
+        )
+    endif()
+endforeach()
+
+# ---------------------------------------------------------------------------
+# Other vendored libraries
+# ---------------------------------------------------------------------------
 add_subdirectory(external/llama.cpp)
 add_subdirectory(external/portaudio)
+
 add_library(webrtcvad STATIC
         external/webrtcvad/vad/webrtc_vad.c
         external/webrtcvad/vad/vad_sp.c
@@ -38,26 +64,36 @@ add_library(webrtcvad STATIC
         external/webrtcvad/vad/vad.cc
         external/webrtcvad/vad/signal_processing_library.c
 )
+target_include_directories(webrtcvad PUBLIC
+        ${CMAKE_SOURCE_DIR}/external/webrtcvad
+        ${CMAKE_SOURCE_DIR}/external/webrtcvad/vad/include
+)
 
 set(WHISPER_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(WHISPER_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/whisper.cpp EXCLUDE_FROM_ALL)
 
-
+# Strip ggml include paths from whisper's interface so they don't leak into us
 get_target_property(WHISPER_INCLUDES whisper INTERFACE_INCLUDE_DIRECTORIES)
 if(WHISPER_INCLUDES)
     list(FILTER WHISPER_INCLUDES EXCLUDE REGEX "ggml")
-    set_target_properties(whisper PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${WHISPER_INCLUDES}")
+    set_target_properties(whisper PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${WHISPER_INCLUDES}")
 endif()
 
+# ---------------------------------------------------------------------------
+# System packages
+# ---------------------------------------------------------------------------
 find_package(CURL REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 find_package(spdlog REQUIRED)
 find_package(OpenAL REQUIRED)
 
+# ---------------------------------------------------------------------------
+# Main executable
+# ---------------------------------------------------------------------------
 qt_add_executable(SimpleATC
         src/main.cpp
-#        src/stt_test.main.cpp
         src/clients/huggingface/HuggingFace.h
         src/clients/huggingface/HuggingFace.cpp
         src/utils/FileNode.h
@@ -77,8 +113,6 @@ qt_add_executable(SimpleATC
         src/gui/main/MainWindow.h
         src/gui/main/MainWindow.ui
         src/gui/main/MainWindow.cpp
-#        src/core/config/Config.h
-#        src/core/config/Config.cpp
         src/gui/Manager.h
         src/gui/Manager.cpp
         src/Constants.h
@@ -94,17 +128,34 @@ qt_add_executable(SimpleATC
         src/core/microphone/Microphone.cpp
         src/core/tts/ITTSBackend.h
         src/core/pipeline/ATCPipeline.h
-        src/utils/MicrophoneActivationType.h
         src/core/pipeline/ATCPipeline.cpp
+        src/utils/MicrophoneActivationType.h
         src/utils/NoiseSuppressionType.h
         src/core/pipeline/ATCEventType.h
-        src/core/microphone/AudioData.h
+        src/core/microphone/MicrophoneInputAudioData.h
+        src/core/tts/SherpaOnnx/SherpaOnnxBackend.h
+        src/core/tts/SherpaOnnx/SherpaOnnxBackend.cpp
+        src/core/audio/Sound.h
+        src/core/audio/IAudioBackend.h
+        src/core/audio/OpenAL/OpenALBackend.h
+        src/core/audio/OpenAL/OpenALBackend.cpp
 )
+
+# Force C++20 on this target — overrides any propagation from dependencies
 set_target_properties(SimpleATC PROPERTIES
+        CXX_STANDARD 20
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
         AUTOMOC ON
         AUTOUIC ON
         AUTORCC ON
 )
+target_compile_features(SimpleATC PRIVATE cxx_std_20)
+
+# Nuclear option: ensures -std=gnu++20 is appended LAST to the command line,
+# so it always wins over any -std=gnu++17 leaked from sherpa-onnx interface.
+target_compile_options(SimpleATC PRIVATE -std=gnu++20)
+
 target_include_directories(SimpleATC PRIVATE
         ${CMAKE_SOURCE_DIR}/src
         ${CMAKE_SOURCE_DIR}/src/core
@@ -115,7 +166,6 @@ target_include_directories(SimpleATC PRIVATE
         ${CMAKE_SOURCE_DIR}/external/webrtcvad
         ${CMAKE_SOURCE_DIR}/external/sherpa-onnx
 )
-
 
 target_link_libraries(SimpleATC PRIVATE
         CURL::libcurl
@@ -130,14 +180,14 @@ target_link_libraries(SimpleATC PRIVATE
         Qt6::Gui
         Qt6::Widgets
 )
-target_include_directories(webrtcvad PUBLIC
-        ${CMAKE_SOURCE_DIR}/external/webrtcvad
-        ${CMAKE_SOURCE_DIR}/external/webrtcvad/vad/include
-)
+
+# ---------------------------------------------------------------------------
+# Post-build: copy shared onnxruntime next to the binary
+# ---------------------------------------------------------------------------
 if(EXISTS "${_sonnx_dir}/lib/libonnxruntime.so")
     add_custom_command(TARGET SimpleATC POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${_sonnx_dir}/lib/libonnxruntime.so"
-            $<TARGET_FILE_DIR:SimpleATC>
+                "${_sonnx_dir}/lib/libonnxruntime.so"
+                $<TARGET_FILE_DIR:SimpleATC>
     )
 endif()

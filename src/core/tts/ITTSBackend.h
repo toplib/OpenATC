@@ -1,20 +1,14 @@
 #pragma once
 
-#include <future>
+#include "audio/Sound.h"
 #include <string>
-#include <vector>
 
 namespace TTS {
 
-struct AudioOutput {
-    std::vector<float> samples;
-    int sampleRate;
-};
-
 class ITTSBackend {
 public:
-    virtual ~ITTSBackend() = default;
-    virtual std::future<AudioOutput> speak(const std::string& text) = 0;
+  virtual ~ITTSBackend() = default;
+  virtual Sound speak(const std::string &text) = 0;
 };
 
-}
+} // namespace TTS

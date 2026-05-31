@@ -24,13 +24,9 @@ int main(int argc, char *argv[]) {
 
   audio.pushAudioFrame(speech);
 
-  // audio won't block main thread — GUI starts immediately
-  // playback continues in the background
-
   GUI::Manager manager(argc, argv);
   int result = manager.run();
 
-  // stop ensures all queued audio finishes and cleans up
   audio.stop();
 
   return result;

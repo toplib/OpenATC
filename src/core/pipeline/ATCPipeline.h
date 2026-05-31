@@ -1,5 +1,7 @@
 #pragma once
 
+#include "audio/IAudioBackend.h"
+#include "microphone/Microphone.h"
 #include "utils/MicrophoneActivationType.h"
 #include <functional>
 #include <mutex>
@@ -22,6 +24,9 @@ struct ATCPipelineConfig {
   std::unique_ptr<LLM::ILLMBackend> llmBackend;
   std::unique_ptr<STT::ISTTBackend> sttBackend;
   std::unique_ptr<TTS::ITTSBackend> ttsBackend;
+
+  Input::Microphone microphone;
+  std::unique_ptr<Audio::IAudioBackend> audioBackend;
 };
 
 class ATCPipeline {

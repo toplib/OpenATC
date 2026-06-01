@@ -19,7 +19,7 @@
    <enum>Qt::ContextMenuPolicy::ActionsContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>SimpleATC - HuggingFace</string>
+   <string>OpenATC - HuggingFace</string>
   </property>
   <property name="modal">
    <bool>false</bool>

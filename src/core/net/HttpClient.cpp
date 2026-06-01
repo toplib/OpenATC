@@ -112,6 +112,6 @@ namespace Net {
     void HttpClient::applyDefaultOptions() {
         curl_easy_setopt(m_curl, CURLOPT_FOLLOWLOCATION, 1L);
         curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, 1L);
-        curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "SimpleATC/0.1");
+        curl_easy_setopt(m_curl, CURLOPT_USERAGENT, "OpenATC/0.1");
     }
 }

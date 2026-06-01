@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
-project(SimpleATC LANGUAGES C CXX)
+project(OpenATC LANGUAGES C CXX)
 
 # ---------------------------------------------------------------------------
 # Global C++ standard
@@ -39,7 +39,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(external/sherpa-onnx EXCLUDE_FROM_ALL)
 set(CMAKE_CXX_STANDARD 20)
 
-# Prevent sherpa-onnx targets from downgrading consumers (SimpleATC) to C++17
+# Prevent sherpa-onnx targets from downgrading consumers (OpenATC) to C++17
 # via INTERFACE_COMPILE_FEATURES propagation.
 foreach(_t sherpa-onnx-cxx-api sherpa-onnx-c-api sherpa-onnx-core sherpa-onnx)
     if(TARGET ${_t})
@@ -92,7 +92,7 @@ find_package(OpenAL REQUIRED)
 # ---------------------------------------------------------------------------
 # Main executable
 # ---------------------------------------------------------------------------
-qt_add_executable(SimpleATC
+qt_add_executable(OpenATC
         src/main.cpp
         src/clients/huggingface/HuggingFace.h
         src/clients/huggingface/HuggingFace.cpp
@@ -142,7 +142,7 @@ qt_add_executable(SimpleATC
 )
 
 # Force C++20 on this target — overrides any propagation from dependencies
-set_target_properties(SimpleATC PROPERTIES
+set_target_properties(OpenATC PROPERTIES
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
@@ -150,13 +150,13 @@ set_target_properties(SimpleATC PROPERTIES
         AUTOUIC ON
         AUTORCC ON
 )
-target_compile_features(SimpleATC PRIVATE cxx_std_20)
+target_compile_features(OpenATC PRIVATE cxx_std_20)
 
 # Nuclear option: ensures -std=gnu++20 is appended LAST to the command line,
 # so it always wins over any -std=gnu++17 leaked from sherpa-onnx interface.
-target_compile_options(SimpleATC PRIVATE -std=gnu++20)
+target_compile_options(OpenATC PRIVATE -std=gnu++20)
 
-target_include_directories(SimpleATC PRIVATE
+target_include_directories(OpenATC PRIVATE
         ${CMAKE_SOURCE_DIR}/src
         ${CMAKE_SOURCE_DIR}/src/core
         ${CMAKE_SOURCE_DIR}/include
@@ -167,7 +167,7 @@ target_include_directories(SimpleATC PRIVATE
         ${CMAKE_SOURCE_DIR}/external/sherpa-onnx
 )
 
-target_link_libraries(SimpleATC PRIVATE
+target_link_libraries(OpenATC PRIVATE
         CURL::libcurl
         llama
         whisper
@@ -185,9 +185,9 @@ target_link_libraries(SimpleATC PRIVATE
 # Post-build: copy shared onnxruntime next to the binary
 # ---------------------------------------------------------------------------
 if(EXISTS "${_sonnx_dir}/lib/libonnxruntime.so")
-    add_custom_command(TARGET SimpleATC POST_BUILD
+    add_custom_command(TARGET OpenATC POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${_sonnx_dir}/lib/libonnxruntime.so"
-                $<TARGET_FILE_DIR:SimpleATC>
+                $<TARGET_FILE_DIR:OpenATC>
     )
 endif()

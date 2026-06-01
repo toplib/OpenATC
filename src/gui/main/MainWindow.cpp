@@ -6,12 +6,12 @@
 #include "Constants.h"
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_ui(new Ui::MainWindow) {
     m_ui->setupUi(this);
-    this->setWindowTitle("SimpleATC");
+    this->setWindowTitle("OpenATC");
 
     QAction* aboutAction = new QAction(tr("&About"), this);
     aboutAction->setShortcut(QKeySequence());
     connect(aboutAction, &QAction::triggered, this, [this]() {
-        QMessageBox::about(this, "SimpleATC about", ABOUT_SECTION.data());
+        QMessageBox::about(this, "OpenATC about", ABOUT_SECTION.data());
     });
 
     QAction* settingsAction = new QAction(tr("&Settings"), this);

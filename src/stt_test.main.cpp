@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
   Input::Microphone microphone(microphone_config);
 
   STT::WhisperConfig whisper_config = {
-      .model = "/home/toplib/CLionProjects/SimpleATC/models/"
+      .model = "/home/toplib/CLionProjects/OpenATC/models/"
                "ggml-large-v3-turbo-q8_0.bin"};
   STT::WhisperBackend backend(whisper_config);
 

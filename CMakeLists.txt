@@ -27,13 +27,35 @@ set(SHERPA_ONNX_ENABLE_PORTAUDIO OFF CACHE BOOL "" FORCE)
 
 # ---------------------------------------------------------------------------
 # sherpa-onnx (needs C++17 internally — temporarily downgrade, then restore)
+#
+# Use shared onnxruntime to avoid ABI mismatch between the prebuilt static
+# library (compiled with GCC 11, old _GLIBCXX_USE_CXX11_ABI) and the system
+# compiler (GCC 16, new CXX11 ABI).
 # ---------------------------------------------------------------------------
 set(_sonnx_dir "${CMAKE_BINARY_DIR}/_deps/onnxruntime-shared")
-if(EXISTS "${_sonnx_dir}/lib/libonnxruntime.so")
-    set(ENV{SHERPA_ONNXRUNTIME_INCLUDE_DIR} "${_sonnx_dir}/include")
-    set(ENV{SHERPA_ONNXRUNTIME_LIB_DIR} "${_sonnx_dir}/lib")
-    message(STATUS "Using shared onnxruntime from ${_sonnx_dir}")
+set(_sonnx_lib "${_sonnx_dir}/lib/libonnxruntime.so")
+
+if(NOT EXISTS "${_sonnx_lib}")
+    set(_sonnx_ver "1.24.4")
+    set(_sonnx_zip "onnxruntime-linux-x64-glibc2_17-Release-${_sonnx_ver}.zip")
+    set(_sonnx_url "https://github.com/csukuangfj/onnxruntime-libs/releases/download/v${_sonnx_ver}/${_sonnx_zip}")
+
+    message(STATUS "Downloading shared onnxruntime ${_sonnx_ver}...")
+    file(DOWNLOAD "${_sonnx_url}" "${CMAKE_BINARY_DIR}/${_sonnx_zip}" SHOW_PROGRESS)
+
+    set(_tmp_dir "${CMAKE_BINARY_DIR}/_deps/onnxruntime-tmp")
+    file(MAKE_DIRECTORY "${_tmp_dir}")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E tar xf "${CMAKE_BINARY_DIR}/${_sonnx_zip}"
+                    WORKING_DIRECTORY "${_tmp_dir}")
+    file(GLOB _extracted_dirs "${_tmp_dir}/*")
+    list(GET _extracted_dirs 0 _extracted_dir)
+    file(COPY "${_extracted_dir}/" DESTINATION "${_sonnx_dir}")
+    file(REMOVE_RECURSE "${_tmp_dir}" "${CMAKE_BINARY_DIR}/${_sonnx_zip}")
 endif()
+
+set(ENV{SHERPA_ONNXRUNTIME_INCLUDE_DIR} "${_sonnx_dir}/include")
+set(ENV{SHERPA_ONNXRUNTIME_LIB_DIR} "${_sonnx_dir}/lib")
+message(STATUS "Using shared onnxruntime from ${_sonnx_dir}")
 
 set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(external/sherpa-onnx EXCLUDE_FROM_ALL)
@@ -52,6 +74,7 @@ endforeach()
 # ---------------------------------------------------------------------------
 # Other vendored libraries
 # ---------------------------------------------------------------------------
+set(LLAMA_BUILD_COMMON ON)
 add_subdirectory(external/llama.cpp)
 add_subdirectory(external/portaudio)
 
@@ -139,6 +162,10 @@ qt_add_executable(OpenATC
         src/core/audio/IAudioBackend.h
         src/core/audio/OpenAL/OpenALBackend.h
         src/core/audio/OpenAL/OpenALBackend.cpp
+        src/utils/LLMTaskType.h
+        src/utils/LLMTask.h
+        src/core/pipeline/microphone/MicrophonePipeline.h
+        src/core/pipeline/microphone/MicrophonePipeline.cpp
 )
 
 # Force C++20 on this target — overrides any propagation from dependencies
@@ -161,15 +188,18 @@ target_include_directories(OpenATC PRIVATE
         ${CMAKE_SOURCE_DIR}/src/core
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/external/llama.cpp/include
+        ${CMAKE_SOURCE_DIR}/external/llama.cpp/common
         ${CMAKE_SOURCE_DIR}/external/whisper.cpp/include
         ${CMAKE_SOURCE_DIR}/external/portaudio/include
         ${CMAKE_SOURCE_DIR}/external/webrtcvad
         ${CMAKE_SOURCE_DIR}/external/sherpa-onnx
+        ${CMAKE_BINARY_DIR}/_deps/json-src/include
 )
 
 target_link_libraries(OpenATC PRIVATE
         CURL::libcurl
         llama
+        llama-common
         whisper
         portaudio
         webrtcvad

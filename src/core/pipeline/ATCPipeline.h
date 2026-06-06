@@ -1,65 +1,104 @@
 #pragma once
 
-#include "audio/IAudioBackend.h"
-#include "microphone/Microphone.h"
-#include "microphone/MicrophoneInputAudioData.h"
-#include "utils/MicrophoneActivationType.h"
-#include <functional>
-#include <mutex>
-#include <thread>
-
-#include "ATCEventType.h"
 #include "llm/ILLMBackend.h"
-#include "stt/ISTTBackend.h"
-#include "tts/ITTSBackend.h"
-#include "utils/NoiseSuppressionType.h"
-#include "webrtc_vad.h"
+#include <functional>
+#include <memory>
+#include <string>
 
 namespace Pipeline {
+
+enum class CommandType {
+  // Ground / Taxi
+  TAXI_TO,
+  TAXI_VIA,
+  TAXI_TO_GATE,
+  TAXI_TO_RAMP,
+  TAXI_TO_HANGAR,
+  PUSHBACK,
+  START_ENGINES,
+  HOLD_POSITION,
+  HOLD_SHORT,
+  STOP_TAXI,
+  BACK_TAXI,
+  CROSS_RUNWAY,
+  EXPEDITE,
+
+  // Takeoff / Departure
+  CLEARED_FOR_TAKEOFF,
+  LINE_UP_AND_WAIT,
+  CANCEL_TAKEOFF_CLEARANCE,
+  CLEARED_IMMEDIATE_TAKEOFF,
+
+  // Landing / Approach
+  CLEARED_TO_LAND,
+  CLEARED_APPROACH,
+  CLEARED_ILS_APPROACH,
+  CLEARED_VOR_APPROACH,
+  CLEARED_VISUAL_APPROACH,
+  CLEARED_RNAV_APPROACH,
+  GO_AROUND,
+  LOW_APPROACH,
+  TOUCH_AND_GO,
+  FULL_STOP,
+
+  // Heading / Navigation
+  TURN_LEFT,
+  TURN_RIGHT,
+  FLY_HEADING,
+  DIRECT_TO,
+  HOLD,
+  REPORT_POSITION,
+
+  // Altitude / Vertical
+  CLIMB_TO,
+  DESCEND_TO,
+  MAINTAIN_ALTITUDE,
+
+  // Speed
+  INCREASE_SPEED,
+  REDUCE_SPEED,
+  MAINTAIN_SPEED,
+
+  // Communication / Transponder
+  CONTACT,
+  SQUAWK,
+  SQUAWK_IDENT,
+  SQUAWK_VFR,
+  SET_ALTIMETER,
+
+  // General / Advisory
+  REPORT,
+  ACKNOWLEDGE,
+  SAY_AGAIN,
+  STAND_BY,
+  CHECK_GEAR,
+  MAINTAIN,
+  ROGER,
+};
+
+struct Command {
+  CommandType type;
+  std::string arguments;
+};
+
 struct ATCPipelineConfig {
-  MicrophoneActivationType microphoneActivationType;
-  NoiseSuppressionType
-      noiseSuppressionType; // TODO: Implement noise suppression
-
-  std::function<void(ATCEventType, std::string_view)> onEventCallback;
-
   std::unique_ptr<LLM::ILLMBackend> llmBackend;
-  std::unique_ptr<STT::ISTTBackend> sttBackend;
-  std::unique_ptr<TTS::ITTSBackend> ttsBackend;
-
-  std::unique_ptr<Input::Microphone> microphone;
-  std::unique_ptr<Audio::IAudioBackend> audioBackend;
-
-  size_t voiceFrameSize;
-  int voiceSilenceFramesThreshold;
-  int voicePostSpeechPadFrames;
-  int voiceMinSpeechFrame;
 };
 
 class ATCPipeline {
 public:
-  ATCPipeline(ATCPipelineConfig config);
+  ATCPipeline(ATCPipelineConfig &config);
   ~ATCPipeline();
 
   void start();
-  void stop();
+  void pushVoiceCommand(std::string text);
+
+  void onResponse(std::function<void(std::string)> responseCallback);
 
 private:
-  void workerThread(std::stop_token token);
+  std::unique_ptr<LLM::ILLMBackend> m_llmBackend;
 
-  ATCPipelineConfig m_config;
-  std::jthread m_thread;
-  std::mutex m_mutex;
-
-  // Microphone pipeline
-  MicrophoneInputAudioData *m_audioData = nullptr;
-  VadInst *m_vad = nullptr;
-  bool m_isSpeaking;
-  std::vector<std::int16_t> m_frame;
-  std::vector<std::int16_t> m_speechBuffer;
-  int m_silenceFrames = 0;
-  int m_speechFrames = 0;
-  std::mutex m_microphoneMutex;
-  void processVAD();
+  std::function<void(std::string)> m_responseCallback;
+  std::vector<Command> m_commandsHistory;
 };
 } // namespace Pipeline

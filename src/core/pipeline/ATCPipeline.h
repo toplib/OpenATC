@@ -1,6 +1,6 @@
 #pragma once
 
-#include "llm/ILLMBackend.h"
+#include "ai/llm/ILLMBackend.h"
 #include <functional>
 #include <memory>
 #include <string>

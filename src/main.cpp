@@ -3,14 +3,14 @@
 #include <spdlog/spdlog.h>
 #include <thread>
 
+#include "ai/llm/llamacpp/LlamacppBackend.h"
+#include "ai/stt/Whisper/WhisperBackend.h"
+#include "ai/tts/SherpaOnnx/SherpaOnnxBackend.h"
 #include "audio/OpenAL/OpenALBackend.h"
 #include "audio/Sound.h"
 #include "gui/Manager.h"
-#include "llm/llamacpp/LlamacppBackend.h"
 #include "pipeline/ATCPipeline.h"
 #include "pipeline/microphone/MicrophonePipeline.h"
-#include "stt/Whisper/WhisperBackend.h"
-#include "tts/SherpaOnnx/SherpaOnnxBackend.h"
 
 int main(int argc, char *argv[]) {
 

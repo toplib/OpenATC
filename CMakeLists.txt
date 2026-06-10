@@ -125,14 +125,14 @@ qt_add_executable(OpenATC
         src/core/net/DownloadManager.h
         src/core/net/DownloadManager.cpp
         third_party/json.hpp
-        src/core/stt/ISTTBackend.h
-        src/core/stt/Whisper/WhisperBackend.h
-        src/core/stt/Whisper/WhisperBackend.cpp
+        src/ai/stt/ISTTBackend.h
+        src/ai/stt/Whisper/WhisperBackend.h
+        src/ai/stt/Whisper/WhisperBackend.cpp
         src/utils/WavLoader.h
-        src/core/llm/ILLMBackend.h
-        src/core/llm/Message.h
-        src/core/llm/llamacpp/LlamacppBackend.h
-        src/core/llm/llamacpp/LlamacppBackend.cpp
+        src/ai/llm/ILLMBackend.h
+        src/ai/llm/Message.h
+        src/ai/llm/llamacpp/LlamacppBackend.h
+        src/ai/llm/llamacpp/LlamacppBackend.cpp
         src/gui/main/MainWindow.h
         src/gui/main/MainWindow.ui
         src/gui/main/MainWindow.cpp
@@ -146,18 +146,17 @@ qt_add_executable(OpenATC
         src/simulation/Engine.h
         src/simulation/Entity.h
         src/simulation/Coordinates.h
-        src/simulation/aircraft/AirCraft.h
         src/core/microphone/Microphone.h
         src/core/microphone/Microphone.cpp
-        src/core/tts/ITTSBackend.h
+        src/ai/tts/ITTSBackend.h
         src/core/pipeline/ATCPipeline.h
         src/core/pipeline/ATCPipeline.cpp
         src/utils/MicrophoneActivationType.h
         src/utils/NoiseSuppressionType.h
         src/core/pipeline/ATCEventType.h
         src/core/microphone/MicrophoneInputAudioData.h
-        src/core/tts/SherpaOnnx/SherpaOnnxBackend.h
-        src/core/tts/SherpaOnnx/SherpaOnnxBackend.cpp
+        src/ai/tts/SherpaOnnx/SherpaOnnxBackend.h
+        src/ai/tts/SherpaOnnx/SherpaOnnxBackend.cpp
         src/core/audio/Sound.h
         src/core/audio/IAudioBackend.h
         src/core/audio/OpenAL/OpenALBackend.h
@@ -166,6 +165,13 @@ qt_add_executable(OpenATC
         src/utils/LLMTask.h
         src/core/pipeline/microphone/MicrophonePipeline.h
         src/core/pipeline/microphone/MicrophonePipeline.cpp
+        src/simulation/airport/Airport.h
+        src/simulation/airport/Airport.cpp
+        src/simulation/airport/Runway.h
+        src/simulation/aircraft/AircraftType.h
+        src/simulation/aircraft/AircraftModel.h
+        src/simulation/airport/Parking.h
+        src/simulation/aircraft/Aircraft.h
 )
 
 # Force C++20 on this target — overrides any propagation from dependencies

@@ -15,39 +15,9 @@
 int main(int argc, char *argv[]) {
 
   Pipeline::MicrophonePipeline microphonePipeline({});
-  MicrophoneInputAudioData *data = microphonePipeline.start();
-
   STT::WhisperBackend whisper(
       {.model = "./../models/ggml-large-v3-turbo-q8_0.bin"});
 
-  while (true) {
-    std::vector<float> samples;
-
-    {
-      std::lock_guard<std::mutex> lock(data->mutex);
-
-      while (!data->samples.empty()) {
-        samples.push_back(data->samples.front());
-        data->samples.pop();
-      }
-    }
-
-    if (samples.empty()) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
-      continue;
-    }
-
-    std::vector<std::int16_t> speech;
-    speech.reserve(samples.size());
-    for (float s : samples) {
-      s = std::clamp(s, -1.0f, 1.0f);
-      speech.push_back(static_cast<std::int16_t>(s * 32767.0f));
-    }
-
-    std::span<const std::int16_t> span(speech);
-    std::future<std::string> future = whisper.transcribe(span);
-    spdlog::info(std::format("Transcribed: {}", future.get()));
-  }
   TTS::SherpaOnnxKokoroConfig ttsConfig{
       .model = "../models/kokoro-en-v0_19/model.onnx",
       .voices = "../models/kokoro-en-v0_19/voices.bin",
@@ -78,11 +48,47 @@ int main(int argc, char *argv[]) {
   pipeline.onResponse([&tts, &audio](std::string text) {
     spdlog::info(std::format("Speaking: \"{}\"", text));
     Sound speech = tts.speak(text);
+    spdlog::info("Audio generated");
     audio.pushAudioFrame(speech);
   });
-  pipeline.pushVoiceCommand(
-      "BRU7581, cleared for takeoff runway 27R, wind 235 at 15 knots, after "
-      "departure contact departure 135.200, and have a nice flight");
+  MicrophoneInputAudioData *data = microphonePipeline.start();
+
+  while (true) {
+    std::vector<float> samples;
+
+    {
+      std::lock_guard<std::mutex> lock(data->mutex);
+
+      while (!data->samples.empty()) {
+        samples.push_back(data->samples.front());
+        data->samples.pop();
+      }
+    }
+
+    if (samples.empty()) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
+      continue;
+    }
+
+    std::vector<std::int16_t> speech;
+    speech.reserve(samples.size());
+    for (float s : samples) {
+      s = std::clamp(s, -1.0f, 1.0f);
+      speech.push_back(static_cast<std::int16_t>(s * 32767.0f));
+    }
+
+    std::span<const std::int16_t> span(speech);
+    std::future<std::string> future =
+        whisper.transcribe(span, {
+                                     R"(ATC Tower. ICAO English phraseology.
+Multiple aircraft.
+Numbers digit by digit: seven five eight one, two seven right, one three five decimal two zero.
+Common controller instructions: cleared for takeoff, line up and wait, after departure contact departure, wind report.
+Transcribe exactly what is spoken. No repetitions.)"});
+    std::string result = future.get();
+    spdlog::info(std::format("Transcribed: {}", result));
+    pipeline.pushVoiceCommand(result);
+  }
 
   GUI::Manager manager(argc, argv);
   int result = manager.run();

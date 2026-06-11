@@ -1,4 +1,5 @@
 #pragma once
+#include "simulation/Coordinates.h"
 #include "simulation/Entity.h"
 
 namespace Simulation {
@@ -8,6 +9,8 @@ public:
   ~Aircraft() override;
 
 private:
+  double m_frequency;
+  Coordinates m_position;
   double m_speed; // knots
 };
 } // namespace Simulation

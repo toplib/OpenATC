@@ -145,7 +145,7 @@ qt_add_executable(OpenATC
         third_party/cpptoml.h
         src/simulation/Engine.h
         src/simulation/Entity.h
-        src/simulation/Coordinates.h
+        src/navigation/Coordinates.h
         src/core/microphone/Microphone.h
         src/core/microphone/Microphone.cpp
         src/ai/tts/ITTSBackend.h
@@ -172,6 +172,10 @@ qt_add_executable(OpenATC
         src/simulation/aircraft/AircraftModel.h
         src/simulation/airport/Parking.h
         src/simulation/aircraft/Aircraft.h
+        src/navigation/Point.h
+        src/navigation/Airway.h
+        src/simulation/Frequency.h
+        src/navigation/airac/IAIRAC.h
 )
 
 # Force C++20 on this target — overrides any propagation from dependencies

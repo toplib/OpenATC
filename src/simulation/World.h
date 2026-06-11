@@ -1,5 +1,6 @@
 #pragma once
 
+#include "simulation/aircraft/Aircraft.h"
 #include "simulation/airport/Airport.h"
 
 namespace Simulation {

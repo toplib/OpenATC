@@ -2,13 +2,9 @@
 
 #include "simulation/aircraft/Aircraft.h"
 #include "simulation/airport/Airport.h"
+#include <vector>
 
-namespace Simulation {
-class World {
-public:
-  World(Airport airport);
-  ~World();
-
-  void addAircraft(Aircraft aircraft);
+struct World {
+  std::vector<Simulation::Aircraft> aircrafts;
+  std::vector<Simulation::Airport> airports;
 };
-} // namespace Simulation

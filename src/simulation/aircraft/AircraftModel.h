@@ -1,13 +1,16 @@
 #pragma once
 
-#include <string>
+#include "navigation/Position.h"
+#include <vector>
 
-struct AircraftName {
-  std::string icao;
-  std::string name;
+struct Engine {
+  double forcePowerPerRpm;
+  int rpm;
+  double egt;
+
+  Position relativePosition;
 };
 
-// ICAO code of airplane
-enum class AircraftModel { B738, A320 };
-
-static AircraftName getName(AircraftModel model) { return {"", ""}; }
+struct AircraftModel {
+  std::vector<Engine> engines;
+};

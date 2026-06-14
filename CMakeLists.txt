@@ -120,6 +120,7 @@ qt_add_executable(OpenATC
         src/clients/huggingface/HuggingFace.h
         src/clients/huggingface/HuggingFace.cpp
         src/utils/FileNode.h
+        src/utils/Vector3f.h
         src/core/net/HttpClient.h
         src/core/net/HttpClient.cpp
         src/core/net/DownloadManager.h
@@ -145,6 +146,8 @@ qt_add_executable(OpenATC
         third_party/cpptoml.h
         src/simulation/Engine.h
         src/simulation/Entity.h
+        src/simulation/Simulation.h
+        src/simulation/Simulation.cpp
         src/navigation/Coordinates.h
         src/core/microphone/Microphone.h
         src/core/microphone/Microphone.cpp
@@ -172,10 +175,16 @@ qt_add_executable(OpenATC
         src/simulation/aircraft/AircraftModel.h
         src/simulation/airport/Parking.h
         src/simulation/aircraft/Aircraft.h
+        src/simulation/aircraft/Aircraft.cpp
         src/navigation/Point.h
         src/navigation/Airway.h
+        src/navigation/Position.h
         src/simulation/Frequency.h
         src/navigation/airac/IAIRAC.h
+        src/physics/PhysicsEngine.h
+        src/physics/PhysicsEngine.cpp
+        src/physics/PhysicsModel.h
+        src/physics/PhysicsWorld.h
 )
 
 # Force C++20 on this target — overrides any propagation from dependencies

@@ -1,0 +1,20 @@
+# Requirements:
+# Recomended
+# CPU: Ryzen 5 5600
+# RAM: 16 GB RAM
+# GPU: RX 6600 LE, 8 GB VRAM
+
+1:
+    * CPU: Ryzen 5 7535HS
+    * RAM: 16 GB
+    * RAM-TYPE: NONE
+    * GPU: RTX 4050 Mobile
+2:
+    * CPU: Intel I7 12700F
+    * RAM: 64 GB
+    * RAM-TYPE: DDR4
+    * GPU: RTX 5070
+3:
+    * CPU: Ryzen 9 9900X3D
+    * RAM: 64 GB
+    * GPU: RTX 4090

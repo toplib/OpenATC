@@ -3,5 +3,5 @@
 #include "Coordinates.h"
 struct WorldPosition {
   Coordinates coordinates;
-  double latitude;
+  double altitude;
 };

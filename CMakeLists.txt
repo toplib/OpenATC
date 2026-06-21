@@ -136,24 +136,42 @@ qt_add_executable(OpenATC
         src/core/audio/OpenAL/OpenALBackend.cpp
         src/utils/LLMTaskType.h
         src/utils/LLMTask.h
+        src/utils/Algorithms.h
         src/core/pipeline/microphone/MicrophonePipeline.h
         src/core/pipeline/microphone/MicrophonePipeline.cpp
         src/navigation/Point.h
         src/navigation/Airway.h
+        src/navigation/SID.h
+        src/navigation/STAR.h
+        src/navigation/NavUtils.h
+        src/navigation/HoldingPattern.h
         src/navigation/Position.h
         src/navigation/airac/IAIRAC.h
         src/gui/home/openatc.ui
         src/gui/home/HomeWindow.h
         src/gui/home/HomeWindow.cpp
-        src/main.cpp
         src/simulation/Simulation.h
         src/simulation/Simulation.cpp
+        src/simulation/Environment.h
+        src/simulation/FlightPlan.h
         src/simulation/aircraft/Aircraft.h
         src/simulation/aircraft/Aircraft.cpp
+        src/simulation/aircraft/AircraftState.h
+        src/simulation/aircraft/AircraftType.h
         src/simulation/airport/Airport.h
         src/simulation/Runway.h
+        src/simulation/Command.h
+        src/simulation/CommandType.h
+        src/simulation/Request.h
+        src/simulation/RequestType.h
+        src/simulation/Waypoint.h
+        src/simulation/WaypointType.h
+        src/simulation/Path.h
+        src/simulation/TaxiRouter.h
+        src/simulation/TaxiRouter.cpp
+        src/simulation/TaxiGraph.h
+        src/simulation/TaxiGraph.cpp
         src/navigation/WorldPosition.h
-        src/navigation/Path.h
 )
 
 set_target_properties(OpenATC PROPERTIES

@@ -1,29 +1,14 @@
 #pragma once
-#include "simulation/Frequency.h"
-#include "simulation/airport/Runway.h"
+
+#include "navigation/Coordinates.h"
+#include "simulation/Runway.h"
 #include <string>
 #include <vector>
 
-namespace Simulation {
-struct AirportConfig {
-  std::string icao;
+struct Airport {
+  std::string icao; // UMMS...
+  std::string iata; // MSQ...
 
-  double latitude;
-  double longitude;
-};
-
-class Airport {
-public:
-  explicit Airport(AirportConfig config);
-  ~Airport();
-
-private:
-  std::string m_icao;
-  std::string m_iata;
-
-  AirportConfig m_config;
-
+  Coordinates position;
   std::vector<Runway> runways;
-  std::vector<Frequency> m_frequencies;
 };
-} // namespace Simulation

@@ -2,18 +2,12 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 project(OpenATC LANGUAGES C CXX)
 
-# ---------------------------------------------------------------------------
-# Global C++ standard
-# ---------------------------------------------------------------------------
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# ---------------------------------------------------------------------------
-# Third-party global options
-# ---------------------------------------------------------------------------
 set(GGML_VULKAN ON CACHE BOOL "" FORCE)
 set(GGML_CUDA OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
@@ -25,13 +19,6 @@ set(SHERPA_ONNX_ENABLE_SPEAKER_DIARIZATION OFF CACHE BOOL "" FORCE)
 set(SHERPA_ONNX_ENABLE_WEBSOCKET OFF CACHE BOOL "" FORCE)
 set(SHERPA_ONNX_ENABLE_PORTAUDIO OFF CACHE BOOL "" FORCE)
 
-# ---------------------------------------------------------------------------
-# sherpa-onnx (needs C++17 internally — temporarily downgrade, then restore)
-#
-# Use shared onnxruntime to avoid ABI mismatch between the prebuilt static
-# library (compiled with GCC 11, old _GLIBCXX_USE_CXX11_ABI) and the system
-# compiler (GCC 16, new CXX11 ABI).
-# ---------------------------------------------------------------------------
 set(_sonnx_dir "${CMAKE_BINARY_DIR}/_deps/onnxruntime-shared")
 set(_sonnx_lib "${_sonnx_dir}/lib/libonnxruntime.so")
 
@@ -61,8 +48,6 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(external/sherpa-onnx EXCLUDE_FROM_ALL)
 set(CMAKE_CXX_STANDARD 20)
 
-# Prevent sherpa-onnx targets from downgrading consumers (OpenATC) to C++17
-# via INTERFACE_COMPILE_FEATURES propagation.
 foreach(_t sherpa-onnx-cxx-api sherpa-onnx-c-api sherpa-onnx-core sherpa-onnx)
     if(TARGET ${_t})
         set_target_properties(${_t} PROPERTIES
@@ -71,9 +56,6 @@ foreach(_t sherpa-onnx-cxx-api sherpa-onnx-c-api sherpa-onnx-core sherpa-onnx)
     endif()
 endforeach()
 
-# ---------------------------------------------------------------------------
-# Other vendored libraries
-# ---------------------------------------------------------------------------
 set(LLAMA_BUILD_COMMON ON)
 add_subdirectory(external/llama.cpp)
 add_subdirectory(external/portaudio)
@@ -96,7 +78,6 @@ set(WHISPER_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(WHISPER_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/whisper.cpp EXCLUDE_FROM_ALL)
 
-# Strip ggml include paths from whisper's interface so they don't leak into us
 get_target_property(WHISPER_INCLUDES whisper INTERFACE_INCLUDE_DIRECTORIES)
 if(WHISPER_INCLUDES)
     list(FILTER WHISPER_INCLUDES EXCLUDE REGEX "ggml")
@@ -104,17 +85,11 @@ if(WHISPER_INCLUDES)
             INTERFACE_INCLUDE_DIRECTORIES "${WHISPER_INCLUDES}")
 endif()
 
-# ---------------------------------------------------------------------------
-# System packages
-# ---------------------------------------------------------------------------
 find_package(CURL REQUIRED)
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
 find_package(spdlog REQUIRED)
 find_package(OpenAL REQUIRED)
 
-# ---------------------------------------------------------------------------
-# Main executable
-# ---------------------------------------------------------------------------
 qt_add_executable(OpenATC
         src/main.cpp
         src/clients/huggingface/HuggingFace.h
@@ -144,11 +119,6 @@ qt_add_executable(OpenATC
         src/gui/settings/Settings.ui
         src/gui/settings/Settings.cpp
         third_party/cpptoml.h
-        src/simulation/Engine.h
-        src/simulation/Entity.h
-        src/simulation/Simulation.h
-        src/simulation/Simulation.cpp
-        src/navigation/Coordinates.h
         src/core/microphone/Microphone.h
         src/core/microphone/Microphone.cpp
         src/ai/tts/ITTSBackend.h
@@ -168,26 +138,24 @@ qt_add_executable(OpenATC
         src/utils/LLMTask.h
         src/core/pipeline/microphone/MicrophonePipeline.h
         src/core/pipeline/microphone/MicrophonePipeline.cpp
-        src/simulation/airport/Airport.h
-        src/simulation/airport/Airport.cpp
-        src/simulation/airport/Runway.h
-        src/simulation/aircraft/AircraftType.h
-        src/simulation/aircraft/AircraftModel.h
-        src/simulation/airport/Parking.h
-        src/simulation/aircraft/Aircraft.h
-        src/simulation/aircraft/Aircraft.cpp
         src/navigation/Point.h
         src/navigation/Airway.h
         src/navigation/Position.h
-        src/simulation/Frequency.h
         src/navigation/airac/IAIRAC.h
-        src/physics/PhysicsEngine.h
-        src/physics/PhysicsEngine.cpp
-        src/physics/PhysicsModel.h
-        src/physics/PhysicsWorld.h
+        src/gui/home/openatc.ui
+        src/gui/home/HomeWindow.h
+        src/gui/home/HomeWindow.cpp
+        src/main.cpp
+        src/simulation/Simulation.h
+        src/simulation/Simulation.cpp
+        src/simulation/aircraft/Aircraft.h
+        src/simulation/aircraft/Aircraft.cpp
+        src/simulation/airport/Airport.h
+        src/simulation/Runway.h
+        src/navigation/WorldPosition.h
+        src/navigation/Path.h
 )
 
-# Force C++20 on this target — overrides any propagation from dependencies
 set_target_properties(OpenATC PROPERTIES
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON
@@ -198,8 +166,6 @@ set_target_properties(OpenATC PROPERTIES
 )
 target_compile_features(OpenATC PRIVATE cxx_std_20)
 
-# Nuclear option: ensures -std=gnu++20 is appended LAST to the command line,
-# so it always wins over any -std=gnu++17 leaked from sherpa-onnx interface.
 target_compile_options(OpenATC PRIVATE -std=gnu++20)
 
 target_include_directories(OpenATC PRIVATE
@@ -230,9 +196,6 @@ target_link_libraries(OpenATC PRIVATE
         Qt6::Widgets
 )
 
-# ---------------------------------------------------------------------------
-# Post-build: copy shared onnxruntime next to the binary
-# ---------------------------------------------------------------------------
 if(EXISTS "${_sonnx_dir}/lib/libonnxruntime.so")
     add_custom_command(TARGET OpenATC POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different

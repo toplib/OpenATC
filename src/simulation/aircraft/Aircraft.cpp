@@ -1,11 +1,11 @@
 #include "Aircraft.h"
-#include <iostream>
+#include <spdlog/spdlog.h>
 
-namespace Simulation {
-  Aircraft::Aircraft() = default;
-  Aircraft::~Aircraft() = default;
+namespace Sim {
+Aircraft::Aircraft() = default;
+Aircraft::~Aircraft() = default;
 
-  void Aircraft::tick(float dt) {
-    std::cout << "Aircraft::tick() applying force to aircraft" << std::endl;
-  }
+void Aircraft::tick(double dt) {
+  spdlog::info(std::format("Aircraft::tick({})", dt));
 }
+} // namespace Sim

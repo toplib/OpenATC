@@ -1,21 +1,16 @@
 #pragma once
-#include "navigation/Coordinates.h"
-#include "physics/PhysicsModel.h"
-#include "simulation/aircraft/AircraftModel.h"
 
-namespace Simulation {
-class Aircraft : public Physics::PhysicsModel {
+#include "navigation/WorldPosition.h"
+namespace Sim {
+class Aircraft {
 public:
   Aircraft();
-  ~Aircraft() override;
+  ~Aircraft();
 
-  void tick(float dt) override;
+  void tick(double dt);
 
 private:
-  double m_frequency;
-  Coordinates m_position;
-  double m_speed; // knots
-  
-  AircraftModel m_model;
+  WorldPosition m_position;
+  double m_vspeed;
 };
-} // namespace Simulation
+} // namespace Sim

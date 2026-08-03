@@ -12,7 +12,7 @@ cd OpenATC/
 git submodule update --init --recursive
 mkdir build && cd build
 cmake ..
-cmake --build .
+cmake --build . -j$(nproc)
 ```
 
 ## License

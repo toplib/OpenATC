@@ -1,0 +1,3 @@
+Lucide Icons (https://lucide.dev)
+Copyright (c) Lucide Contributors
+Licensed under the ISC License.

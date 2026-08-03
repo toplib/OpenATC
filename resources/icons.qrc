@@ -1,0 +1,19 @@
+<RCC>
+  <qresource prefix="/icons">
+    <file alias="plus.svg">icons/plus.svg</file>
+    <file alias="folder-open.svg">icons/folder-open.svg</file>
+    <file alias="pencil.svg">icons/pencil.svg</file>
+    <file alias="send.svg">icons/send.svg</file>
+    <file alias="clock.svg">icons/clock.svg</file>
+    <file alias="search.svg">icons/search.svg</file>
+    <file alias="x.svg">icons/x.svg</file>
+    <file alias="user.svg">icons/user.svg</file>
+    <file alias="link-2.svg">icons/link-2.svg</file>
+    <file alias="plane.svg">icons/plane.svg</file>
+    <file alias="mouse-pointer-2.svg">icons/mouse-pointer-2.svg</file>
+  </qresource>
+  <qresource prefix="/fonts">
+    <file alias="JetBrainsMono-Regular.ttf">fonts/JetBrainsMono-Regular.ttf</file>
+    <file alias="JetBrainsMono-Bold.ttf">fonts/JetBrainsMono-Bold.ttf</file>
+  </qresource>
+</RCC>

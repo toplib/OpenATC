@@ -8,7 +8,6 @@ Implement Push-to-Talk button
 Implement TTS
 
 Implement radar display
-Implement aircraft simulation
 Implement flight plan management
 
 Implement Config persistence

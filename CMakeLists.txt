@@ -86,12 +86,13 @@ if(WHISPER_INCLUDES)
 endif()
 
 find_package(CURL REQUIRED)
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Svg)
 find_package(spdlog REQUIRED)
 find_package(OpenAL REQUIRED)
 
 qt_add_executable(OpenATC
         src/main.cpp
+        resources/icons.qrc
         src/clients/huggingface/HuggingFace.h
         src/clients/huggingface/HuggingFace.cpp
         src/utils/FileNode.h
@@ -139,39 +140,32 @@ qt_add_executable(OpenATC
         src/utils/Algorithms.h
         src/core/pipeline/microphone/MicrophonePipeline.h
         src/core/pipeline/microphone/MicrophonePipeline.cpp
-        src/navigation/Point.h
-        src/navigation/Airway.h
-        src/navigation/SID.h
-        src/navigation/STAR.h
-        src/navigation/NavUtils.h
-        src/navigation/HoldingPattern.h
-        src/navigation/Position.h
-        src/navigation/airac/IAIRAC.h
-        src/gui/home/openatc.ui
+        src/gui/theme/Theme.h
+        src/gui/theme/Theme.cpp
+        src/gui/icons/Icons.h
+        src/gui/icons/Icons.cpp
+        src/gui/navigation/PageId.h
+        src/gui/navigation/IPage.h
+        src/gui/widgets/AppHeader.h
+        src/gui/widgets/AppHeader.cpp
+        src/gui/widgets/ProjectCard.h
+        src/gui/widgets/ProjectCard.cpp
+        src/gui/widgets/TipBox.h
+        src/gui/widgets/TipBox.cpp
+        src/gui/widgets/ProjectSidebar.h
+        src/gui/widgets/ProjectSidebar.cpp
+        src/gui/widgets/StatusFooter.h
+        src/gui/widgets/StatusFooter.cpp
+        src/gui/pages/ActivityPage.h
+        src/gui/pages/ActivityPage.cpp
+        src/gui/pages/ContentPages.h
+        src/gui/pages/ContentPages.cpp
+        src/gui/pages/SettingsPage.h
+        src/gui/pages/SettingsPage.cpp
+        src/gui/shell/AppShell.h
+        src/gui/shell/AppShell.cpp
         src/gui/home/HomeWindow.h
         src/gui/home/HomeWindow.cpp
-        src/simulation/Simulation.h
-        src/simulation/Simulation.cpp
-        src/simulation/Environment.h
-        src/simulation/FlightPlan.h
-        src/simulation/aircraft/Aircraft.h
-        src/simulation/aircraft/Aircraft.cpp
-        src/simulation/aircraft/AircraftState.h
-        src/simulation/aircraft/AircraftType.h
-        src/simulation/airport/Airport.h
-        src/simulation/Runway.h
-        src/simulation/Command.h
-        src/simulation/CommandType.h
-        src/simulation/Request.h
-        src/simulation/RequestType.h
-        src/simulation/Waypoint.h
-        src/simulation/WaypointType.h
-        src/simulation/Path.h
-        src/simulation/TaxiRouter.h
-        src/simulation/TaxiRouter.cpp
-        src/simulation/TaxiGraph.h
-        src/simulation/TaxiGraph.cpp
-        src/navigation/WorldPosition.h
 )
 
 set_target_properties(OpenATC PROPERTIES
@@ -212,6 +206,7 @@ target_link_libraries(OpenATC PRIVATE
         Qt6::Core
         Qt6::Gui
         Qt6::Widgets
+        Qt6::Svg
 )
 
 if(EXISTS "${_sonnx_dir}/lib/libonnxruntime.so")
